@@ -5,22 +5,7 @@ from termcolor import colored
 __author__ = 'ORI'
 
 
-def ex1_alignment_score(char_a, char_b):
-    if char_a == '-' or char_b == '-':
-        return -3
-    if char_a == char_b:
-        return 2
-    if char_a != char_b:
-        return -2
 
-
-def AWO_alignment_score(char_a, char_b):
-    if char_a == '-' or char_b == '-':
-        return 1
-    if char_a == char_b:
-        return 4
-    if char_a != char_b:
-        return -1
 
 
 def pretty_print_matrix(matrix, string_a, string_b, indexes_to_highligh):
@@ -45,19 +30,22 @@ def pretty_print_matrix(matrix, string_a, string_b, indexes_to_highligh):
             toggle = not toggle
         print string_to_print
 
-    # style is not supported for non-unique indicies.
-    # df = pd.DataFrame(data=matrix)
-    # print df
-    from IPython.display import HTML
 
 
-def compute_alignment(string_S, string_T, algo, alignment_score=ex1_alignment_score):
+
+def compute_alignment(string_S, string_T, algo, alignment_score):
     string_S = '-' + string_S
     string_T = '-' + string_T
+
+    """ initialize the dynamix programming matrix """
     dp_matrix = np.zeros((len(string_S) + 1, len(string_T) + 1))
     dp_matrix[:, :] = -np.inf
     dp_matrix[1, 1] = 0
     dp_direction_matrix = np.zeros_like(dp_matrix)
+
+
+
+    """ table initialization """
     if algo == 'overlap':
         dp_matrix[1, :] = 0
         dp_matrix[:, 1] = 0
@@ -91,10 +79,8 @@ def compute_alignment(string_S, string_T, algo, alignment_score=ex1_alignment_sc
             dp_matrix[iter_a + 1, iter_b + 1] = new_cell_value
             dp_direction_matrix[iter_a + 1, iter_b + 1] = new_cell_direction
 
-    max_plac = np.argmax(dp_matrix[-1, :])
 
-    # selec one of the arbitray maxima
-
+    """ find the starting location for calculating the path """
     if algo == 'NW':
         [current_row_index, current_column_index] = np.asarray(dp_matrix.shape) - 1
     elif algo == 'SW':
@@ -112,6 +98,8 @@ def compute_alignment(string_S, string_T, algo, alignment_score=ex1_alignment_sc
     S_tag = []
     T_tag = []
     path_indexes = []
+
+    """ calculcation the maximal path according to the different algorithms"""
     while True:
 
         direction = dp_direction_matrix[current_row_index, current_column_index]
@@ -144,6 +132,7 @@ def compute_alignment(string_S, string_T, algo, alignment_score=ex1_alignment_sc
             T_tag.insert(0, string_T[current_column_index - 1])
             break
 
+    """ display the dynamic programming matrix and the maximal path"""
     pretty_print_matrix(dp_matrix[1:, 1:], string_S, string_T, path_indexes)
 
     print "Alignment"
@@ -152,6 +141,16 @@ def compute_alignment(string_S, string_T, algo, alignment_score=ex1_alignment_sc
 
 
 if __name__ == "__main__":
+
+    def ex1_alignment_score(char_a, char_b):
+        if char_a == '-' or char_b == '-':
+            return -3
+        if char_a == char_b:
+            return 2
+        if char_a != char_b:
+            return -2
+
+
 
     """
     question 1
